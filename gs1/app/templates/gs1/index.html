@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>counting app</h1>
+    <h2 id='count'></h2>
+
+    <textarea id="chat-log" cols="100" rows="20"></textarea> <br>
+    <input type="text" id="chat-input" placeholder="Type a message..."> <br>
+    <button id="send-button">Send</button> <br>
+    {{ groupName|json_script:"groupName" }} <br>
+<script>
+    const groupName = JSON.parse(document.getElementById("groupName").textContent);
+    console.log(groupName);
+    const chatLog = document.getElementById("chat-log");
+    const chatInput = document.getElementById("chat-input");
+    const sendButton = document.getElementById("send-button");
+
+    ws = new WebSocket(
+        'ws://' + window.location.host + '/ws/sc/' + groupName + '/'
+    )
+    ws.onopen = function() {
+        console.log("WebSocket connection opened.");
+        ws.send("Hello, server!"); // Send a message to the server
+    };
+    ws.onmessage = function(event) {
+        console.log("Message from server: ", event.data);
+        data = JSON.parse(event.data);
+        console.log(data);
+        document.getElementById("count").innerHTML = data.count;
+    };  
+    ws.onclose = function() {
+        console.log("WebSocket connection closed.");
+    };
+    ws.onerror = function(error) {
+        console.log("WebSocket error: ", error);
+    };
+</script>
+</body>
+</html>
